@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pemesanan</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/stye.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">SistemBooking</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item" id="nav-login">
+                        <a class="nav-link" href="#" onclick="showLoginForm()">Login</a>
+                    </li>
+                    <li class="nav-item" id="nav-register">
+                        <a class="nav-link" href="#" onclick="showRegisterForm()">Register</a>
+                    </li>
+                    <li class="nav-item hidden" id="nav-logout">
+                        <a class="nav-link" href="#" onclick="logout()">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="container login-container" id="login-form">
+        <h2 class="text-center mb-4">Login</h2>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="loginEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="loginEmail" required>
+            </div>
+            <div class="mb-3">
+                <label for="loginPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+            <div class="mb-3">
+                <label for="loginRole" class="form-label">Login Sebagai</label>
+                <select class="form-select" id="loginRole" required>
+                    <option value="user">User</option>
+                    <option value="tenant">Tenant</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+            <p class="text-center mt-3">
+                Belum punya akun? <a href="#" onclick="showRegisterForm()">Register</a>
+            </p>
+        </form>
+    </div>
+
+    <!-- Register Form -->
+    <div class="container login-container hidden" id="register-form">
+        <h2 class="text-center mb-4">Register</h2>
+        <form id="registerForm">
+            <div class="mb-3">
+                <label for="registerName" class="form-label">Nama</label>
+                <input type="text" class="form-control" id="registerName" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="registerEmail" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="registerPassword" required>
+            </div>
+            <div class="mb-3">
+                <label for="registerRole" class="form-label">Register Sebagai</label>
+                <select class="form-select" id="registerRole" required>
+                    <option value="user">User</option>
+                    <option value="tenant">Tenant</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+            <p class="text-center mt-3">
+                Sudah punya akun? <a href="#" onclick="showLoginForm()">Login</a>
+            </p>
+        </form>
+    </div>
+
+    <!-- User Dashboard -->
+    <div class="container-fluid hidden" id="user-dashboard">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 dashboard-sidebar">
+                <h5 class="px-3 mb-3">Menu User</h5>
+                <ul class="sidebar-menu">
+                    <li class="active" onclick="showUserSection('available-services')">Layanan Tersedia</li>
+                    <li onclick="showUserSection('my-bookings')">Pesanan Saya</li>
+                    <li onclick="showUserSection('user-profile')">Profil Saya</li>
+                </ul>
+            </div>
+            <div class="col-md-9 col-lg-10 dashboard-container">
+                <!-- Available Services Section -->
+                <div id="available-services" class="user-section">
+                    <h3 class="mb-4">Layanan Tersedia</h3>
+                    <div class="row" id="services-list">
+                        <!-- Services will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- My Bookings Section -->
+                <div id="my-bookings" class="user-section hidden">
+                    <h3 class="mb-4">Pesanan Saya</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Layanan</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-bookings-table">
+                                <!-- User bookings will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- User Profile Section -->
+                <div id="user-profile" class="user-section hidden">
+                    <h3 class="mb-4">Profil Saya</h3>
+                    <form id="user-profile-form">
+                        <div class="mb-3">
+                            <label for="user-name" class="form-label">Nama</label>
+                            <input type="text" class="form-control" id="user-name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="user-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="user-email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="user-password" class="form-label">Password Baru</label>
+                            <input type="password" class="form-control" id="user-password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tenant Dashboard -->
+    <div class="container-fluid hidden" id="tenant-dashboard">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 dashboard-sidebar">
+                <h5 class="px-3 mb-3">Menu Tenant</h5>
+                <ul class="sidebar-menu">
+                    <li class="active" onclick="showTenantSection('my-services')">Layanan Saya</li>
+                    <li onclick="showTenantSection('incoming-bookings')">Pesanan Masuk</li>
+                    <li onclick="showTenantSection('tenant-profile')">Profil Tenant</li>
+                </ul>
+            </div>
+            <div class="col-md-9 col-lg-10 dashboard-container">
+                <!-- My Services Section -->
+                <div id="my-services" class="tenant-section">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3>Layanan Saya</h3>
+                        <button class="btn btn-primary" onclick="showAddServiceForm()">Tambah Layanan</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama Layanan</th>
+                                    <th>Deskripsi</th>
+                                    <th>Harga</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenant-services-table">
+                                <!-- Tenant services will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Add Service Form -->
+                    <div class="mt-4 hidden" id="add-service-form">
+                        <h4 class="mb-3">Tambah Layanan Baru</h4>
+                        <form id="service-form">
+                            <input type="hidden" id="service-id">
+                            <div class="mb-3">
+                                <label for="service-name" class="form-label">Nama Layanan</label>
+                                <input type="text" class="form-control" id="service-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="service-description" class="form-label">Deskripsi</label>
+                                <textarea class="form-control" id="service-description" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="service-price" class="form-label">Harga</label>
+                                <input type="number" class="form-control" id="service-price" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelAddService()">Batal</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Incoming Bookings Section -->
+                <div id="incoming-bookings" class="tenant-section hidden">
+                    <h3 class="mb-4">Pesanan Masuk</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Layanan</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tenant-bookings-table">
+                                <!-- Tenant bookings will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Tenant Profile Section -->
+                <div id="tenant-profile" class="tenant-section hidden">
+                    <h3 class="mb-4">Profil Tenant</h3>
+                    <form id="tenant-profile-form">
+                        <div class="mb-3">
+                            <label for="tenant-name" class="form-label">Nama Tenant</label>
+                            <input type="text" class="form-control" id="tenant-name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tenant-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="tenant-email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tenant-password" class="form-label">Password Baru</label>
+                            <input type="password" class="form-control" id="tenant-password">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Profil</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="container-fluid hidden" id="admin-dashboard">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 dashboard-sidebar">
+                <h5 class="px-3 mb-3">Menu Admin</h5>
+                <ul class="sidebar-menu">
+                    <li class="active" onclick="showAdminSection('manage-users')">Kelola Users</li>
+                    <li onclick="showAdminSection('manage-tenants')">Kelola Tenants</li>
+                    <li onclick="showAdminSection('manage-bookings')">Kelola Bookings</li>
+                </ul>
+            </div>
+            <div class="col-md-9 col-lg-10 dashboard-container">
+                <!-- Manage Users Section -->
+                <div id="manage-users" class="admin-section">
+                    <h3 class="mb-4">Kelola Users</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Manage Tenants Section -->
+                <div id="manage-tenants" class="admin-section hidden">
+                    <h3 class="mb-4">Kelola Tenants</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama</th>
+                                    <th>Email</th>
+                                    <th>Jumlah Layanan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-tenants-table">
+                                <!-- Tenants will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Manage Bookings Section -->
+                <div id="manage-bookings" class="admin-section hidden">
+                    <h3 class="mb-4">Kelola Bookings</h3>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Tenant</th>
+                                    <th>Layanan</th>
+                                    <th>Tanggal</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-bookings-table">
+                                <!-- Bookings will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Buat Pesanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="booking-form">
+                        <input type="hidden" id="booking-service-id">
+                        <div class="mb-3">
+                            <label for="booking-service-name" class="form-label">Layanan</label>
+                            <input type="text" class="form-control" id="booking-service-name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="booking-date" class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="booking-date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="booking-notes" class="form-label">Catatan</label>
+                            <textarea class="form-control" id="booking-notes" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="createBooking()">Pesan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-user-form">
+                        <input type="hidden" id="edit-user-id">
+                        <div class="mb-3">
+                            <label for="edit-user-name" class="form-label">Nama</label>
+                            <input type="text" class="form-control" id="edit-user-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-user-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="edit-user-email" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-user-role" class="form-label">Role</label>
+                            <select class="form-select" id="edit-user-role">
+                                <option value="user">User</option>
+                                <option value="tenant">Tenant</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="updateUser()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/script.js"></script>
+</body>
+</html>

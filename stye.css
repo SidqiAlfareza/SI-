@@ -1,0 +1,43 @@
+.navbar-brand {
+    font-weight: bold;
+}
+.login-container {
+    max-width: 400px;
+    margin: 80px auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+.dashboard-container {
+    padding: 20px;
+}
+.hidden {
+    display: none;
+}
+.dashboard-sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: #f8f9fa;
+    padding: 20px 0;
+}
+.sidebar-menu {
+    list-style: none;
+    padding-left: 0;
+}
+.sidebar-menu li {
+    padding: 8px 20px;
+    cursor: pointer;
+}
+.sidebar-menu li:hover, .sidebar-menu li.active {
+    background-color: #e9ecef;
+}
+.booking-card {
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+}
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.form-section {
+    margin-bottom: 30px;
+}
