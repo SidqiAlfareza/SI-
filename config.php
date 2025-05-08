@@ -5,16 +5,11 @@ $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
 
-$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-];
+$koneksi = mysqli_connect($host, $user, $pass, $db);
 
-try {
-     $pdo = new PDO($dsn, $user, $pass, $options);
-} catch (\PDOException $e) {
-     echo json_encode(['error' => $e->getMessage()]);
-     exit;
-}
+if (!$koneksi) {
+     die("Koneksi ke database gagal: " . mysqli_connect_error());
+ }
+ 
+//  echo "Koneksi ke database berhasil";
 ?>
