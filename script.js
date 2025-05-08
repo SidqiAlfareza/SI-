@@ -16,13 +16,21 @@ async function fetchAPI(url, method = 'GET', data = null) {
         }
 
         const response = await fetch(url, options);
-        const result = await response.json();
+
+        // Tambahkan validasi status HTTP sebelum memproses JSON
+        if (!response.ok) {
+            console.error(`HTTP Error: ${response.status} - ${response.statusText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const result = await response.json(); // Gagal jika respon bukan JSON
         return result;
     } catch (error) {
         console.error('Error:', error);
         return { status: 'error', message: 'Terjadi kesalahan pada server' };
     }
 }
+
 
 // ----- USER FUNCTIONS -----
 
