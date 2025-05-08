@@ -5,12 +5,22 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
+// Tampilkan error untuk debugging (pastikan ini hanya digunakan di lingkungan pengembangan)
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Koneksi ke database
 require_once "../api/config.php";
+
+// Validasi apakah input adalah JSON
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode(array("status" => "error", "message" => "Input JSON tidak valid"));
+        exit();
+    }
+}
 
 // Mendapatkan metode HTTP
 $method = $_SERVER['REQUEST_METHOD'];
@@ -35,8 +45,12 @@ switch ($method) {
         
     case 'POST':
         // Mengambil data dari request
-        $data = json_decode(file_get_contents("php://input"), true);
         $action = isset($data['action']) ? $data['action'] : '';
+        
+        if (empty($action)) {
+            echo json_encode(array("status" => "error", "message" => "Action tidak boleh kosong"));
+            exit();
+        }
         
         if ($action == 'login') {
             // Proses login
@@ -99,73 +113,16 @@ switch ($method) {
                 echo json_encode(array("status" => "error", "message" => "Update profil gagal: " . mysqli_error($koneksi)));
             }
         }
-        elseif ($action == 'updateByAdmin') {
-            // Admin update user
-            $id = bersihkan_input($data['id']);
-            $name = bersihkan_input($data['name']);
-            $role = bersihkan_input($data['role']);
-            $oldRole = bersihkan_input($data['oldRole']);
-            
-            $sql = "UPDATE users SET name='$name', role='$role' WHERE id='$id'";
-            
-            if (mysqli_query($koneksi, $sql)) {
-                // Jika role berubah dari tenant menjadi role lain, hapus layanan
-                if ($oldRole == 'tenant' && $role != 'tenant') {
-                    mysqli_query($koneksi, "DELETE FROM services WHERE tenant_id='$id'");
-                }
-                
-                echo json_encode(array("status" => "success", "message" => "User berhasil diupdate!"));
-            } else {
-                echo json_encode(array("status" => "error", "message" => "Update user gagal: " . mysqli_error($koneksi)));
-            }
-        }
         elseif ($action == 'delete') {
             // Hapus user
             $id = bersihkan_input($data['id']);
             
-            // Cek apakah user ada
-            $cek_user = mysqli_query($koneksi, "SELECT * FROM users WHERE id='$id'");
-            if (mysqli_num_rows($cek_user) == 0) {
-                echo json_encode(array("status" => "error", "message" => "User tidak ditemukan!"));
-                exit();
-            }
-            
-            $user = mysqli_fetch_assoc($cek_user);
-            
-            // Cek apakah user adalah admin
-            if ($user['role'] == 'admin') {
-                echo json_encode(array("status" => "error", "message" => "Admin tidak dapat dihapus!"));
-                exit();
-            }
-            
-            // Cek apakah user adalah tenant dengan pesanan aktif
-            if ($user['role'] == 'tenant') {
-                $cek_booking = mysqli_query($koneksi, "SELECT * FROM bookings WHERE tenant_id='$id' AND (status='pending' OR status='confirmed')");
-                if (mysqli_num_rows($cek_booking) > 0) {
-                    echo json_encode(array("status" => "error", "message" => "Tidak dapat menghapus tenant karena memiliki pesanan aktif!"));
-                    exit();
-                }
-                
-                // Hapus layanan tenant
-                mysqli_query($koneksi, "DELETE FROM services WHERE tenant_id='$id'");
-            }
-            
-            // Cek apakah user adalah user biasa dengan pesanan aktif
-            if ($user['role'] == 'user') {
-                $cek_booking = mysqli_query($koneksi, "SELECT * FROM bookings WHERE user_id='$id' AND (status='pending' OR status='confirmed')");
-                if (mysqli_num_rows($cek_booking) > 0) {
-                    echo json_encode(array("status" => "error", "message" => "Tidak dapat menghapus user karena memiliki pesanan aktif!"));
-                    exit();
-                }
-            }
-            
-            // Hapus user
             $sql = "DELETE FROM users WHERE id='$id'";
             
             if (mysqli_query($koneksi, $sql)) {
                 echo json_encode(array("status" => "success", "message" => "User berhasil dihapus!"));
             } else {
-                echo json_encode(array("status" => "error", "message" => "Hapus user gagal: " . mysqli_error($koneksi)));
+                echo json_encode(array("status" => "error", "message" => "Query gagal: " . mysqli_error($koneksi)));
             }
         }
         else {
@@ -174,10 +131,16 @@ switch ($method) {
         break;
         
     default:
+        http_response_code(405);
         echo json_encode(array("status" => "error", "message" => "Metode HTTP tidak didukung"));
         break;
 }
 
 // Tutup koneksi database
 mysqli_close($koneksi);
-?>
+
+// Fungsi untuk membersihkan input
+function bersihkan_input($data) {
+    global $koneksi;
+    return mysqli_real_escape_string($koneksi, trim($data));
+}
