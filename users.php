@@ -6,7 +6,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
 // Koneksi ke database
-require_once "../koneksi.php";
+require_once "../api/config.php";
 
 // Mendapatkan metode HTTP
 $method = $_SERVER['REQUEST_METHOD'];
